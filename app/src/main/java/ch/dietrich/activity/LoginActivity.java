@@ -51,6 +51,13 @@ public class LoginActivity extends Activity implements OnClickListener, AsyncTas
 
 	@Override
 	public void onClick(View v) {
+
+		// NO Auth
+		Intent i = new Intent(LoginActivity.this, AllOffersActivity.class);
+		finish();
+		startActivity(i);
+
+		/*With auth
 		switch (v.getId()) {
 		case R.id.login:
 			pDialog = new ProgressDialog(LoginActivity.this);
@@ -69,6 +76,7 @@ public class LoginActivity extends Activity implements OnClickListener, AsyncTas
 		default:
 			break;
 		}
+		*/
 	}
 
 	@Override

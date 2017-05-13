@@ -1,6 +1,9 @@
 package ch.dietrich.activity;
 
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -19,6 +22,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -38,7 +42,7 @@ import ch.dietrich.entity.Offer;
 import ch.dietrich.entity.OfferType;
 
 
-public class AddOfferActivity extends FragmentActivity implements OnClickListener {
+public class AddOfferActivity extends AppCompatActivity implements OnClickListener {
 	private static final String LOG = "AddOfferActivity";
 
     private static final int PLACE_PICKER_REQUEST = 1;
@@ -59,9 +63,13 @@ public class AddOfferActivity extends FragmentActivity implements OnClickListene
 	protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 		setContentView(R.layout.add_offer);
-        setUpMapIfNeeded();
 
+		if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED){
 
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS},0);
+
+        }
 
 		descriptionTextEdit = (EditText) findViewById(R.id.description);
 
@@ -75,6 +83,22 @@ public class AddOfferActivity extends FragmentActivity implements OnClickListene
 		mSubmit.setOnClickListener(this);
 	}
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+        // If request is cancelled, the result arrays are empty.
+        if (grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            // permission was granted, yay! Do the
+            // contacts-related task you need to do.
+        }else{
+            finish();
+        }
+        return;
+    }
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -84,7 +108,7 @@ public class AddOfferActivity extends FragmentActivity implements OnClickListene
 		loadingTypesDialog.setIndeterminate(false);
 		loadingTypesDialog.setCancelable(true);
 		loadingTypesDialog.show();
-        setUpMapIfNeeded();
+
 		offertDAO
 				.getOfferTypes(new AsyncTaskCompleteListener<List<OfferType>>() {
 
@@ -197,16 +221,15 @@ public class AddOfferActivity extends FragmentActivity implements OnClickListene
 		mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 			@Override
 			public void onMapClick(LatLng latLng) {
-
-				PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-				Log.d(LOG,"creating picker" );
-				try {
-					startActivityForResult(builder.build(AddOfferActivity.this), PLACE_PICKER_REQUEST);
-				} catch (GooglePlayServicesRepairableException e) {
-					e.printStackTrace();
-				} catch (GooglePlayServicesNotAvailableException e) {
-					e.printStackTrace();
-				}
+                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+                Log.d(LOG,"creating picker" );
+                try {
+                    startActivityForResult(builder.build(AddOfferActivity.this), PLACE_PICKER_REQUEST);
+                } catch (GooglePlayServicesRepairableException e) {
+                    e.printStackTrace();
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    e.printStackTrace();
+                }
 			}
 		});
 	}
